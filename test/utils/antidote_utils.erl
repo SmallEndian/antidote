@@ -36,6 +36,8 @@
 %% API
 -export([
     increment_pn_counter/3,
+    increment_b_counter/3,
+    decrement_b_counter/3,
 
     read_pn_counter/3,
     read_b_counter/3,
@@ -65,6 +67,18 @@ increment_pn_counter(Node, Key, Bucket) ->
     ?assertMatch({ok, _}, WriteResult),
     ok.
 
+increment_b_counter(Node, Key, Bucket) ->
+    Obj = {Key, ?TYPE_B, Bucket},
+    WriteResult = rpc:call(Node, antidote, update_objects, [ignore, [], [antidotec_counter:increment(Obj)]]),
+    %WriteResult = rpc:call(Node, antidote, update_objects, [ignore, [], [{Obj, increment, 1}]]),
+    ?assertMatch({ok, _}, WriteResult),
+    WriteResult.
+
+decrement_b_counter(Node, Key, Bucket) ->
+    Obj = {Key, ?TYPE_B, Bucket},
+    WriteResult = rpc:call(Node, antidote, update_objects, [ignore, [], [antidotec_counter:increment(Obj)]]),
+    ?assertMatch({ok, _}, WriteResult),
+    WriteResult.
 
 read_pn_counter(Node, Key, Bucket) ->
     Obj = {Key, ?TYPE_PNC, Bucket},
@@ -78,13 +92,7 @@ read_b_counter(Node, Key, Bucket) ->
 read_b_counter_commit(Node, Key, Bucket, CommitTime) ->
     Obj = {Key, ?TYPE_B, Bucket},
     {ok, [Value], CommitTime} = rpc:call(Node, antidote, read_objects, [CommitTime, [], [Obj]]),
-    {?TYPE_B:permissions(Value), CommitTime}.
-
-
-
-
-
-
+    {Value, CommitTime}.
 
 
 

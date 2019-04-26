@@ -70,6 +70,7 @@ start_link() ->
 
 init([]) ->
     logger:info("Started Bounded counter manager at node ~p", [node()]),
+	io:format("Started bcounters manager ~n ~n ~n"),
     Timer=erlang:send_after(?TRANSFER_FREQ, self(), transfer_periodic),
     {ok, #state{req_queue=orddict:new(), transfer_timer=Timer, last_transfers=orddict:new()}}.
 
@@ -78,17 +79,21 @@ init([]) ->
 %% below 0), operation fails, otherwhise a downstream for the decrement
 %% is generated.
 generate_downstream(Key, {decrement, {V, _}}, BCounter) ->
+	io:put_chars(standard_error, "Called this instead~n~n"),
     MyDCId = dc_meta_data_utilities:get_my_dc_id(),
     gen_server:call(?MODULE, {consume, Key, {decrement, {V, MyDCId}}, BCounter});
 
 %% @doc Processes an increment operation for the bounded counter.
 %% Operation is always safe.
 generate_downstream(_Key, {increment, {Amount, _}}, BCounter) ->
+	io:put_chars(standard_error, "Called downstream~n~n"),
     MyDCId = dc_meta_data_utilities:get_my_dc_id(),
     ?DATA_TYPE:downstream({increment, {Amount, MyDCId}}, BCounter);
 generate_downstream(Key, {increment, Amount}, BCounter) when Amount < 0->
+	io:put_chars(standard_error, "Called downstream~n~n"),
     generate_downstream(Key, {decrement, {-Amount, empty}}, BCounter);
 generate_downstream(Key, {increment, Amount}, BCounter)->
+	io:put_chars(standard_error, "Called downstream~n~n"),
     generate_downstream(Key, {increment, {Amount, empty}}, BCounter);
 
 %% @doc Processes a trasfer operation between two owners of the

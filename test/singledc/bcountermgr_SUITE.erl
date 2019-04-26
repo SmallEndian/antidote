@@ -36,7 +36,7 @@
          all/0]).
 
 %% tests
--export([new_bcounter_test/1]).
+-export([new_bcounter_test/1, another_test/1]).
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -76,7 +76,8 @@ end_per_testcase(Name, _) ->
 
 
 all() -> [
-         new_bcounter_test
+         new_bcounter_test,
+	 another_test
         ].
 
 
@@ -91,6 +92,18 @@ new_bcounter_test(Config) ->
     %?assertEqual(0, Value).
     check_read(Node, Key, 0, Bucket).
 
+another_test(Config) ->
+    Bucket = ?BUCKET,
+    Node = proplists:get_value(node, Config),
+    Key = bcounter1_mgr,
+
+    antidote_utils:increment_b_counter(Node, Key, Bucket),
+    antidote_utils:decrement_b_counter(Node, Key, Bucket),
+    antidote_utils:decrement_b_counter(Node, Key, Bucket),
+    check_read(Node, Key, 0, Bucket).
+
+
+
 read_si(Node, Key, CommitTime, Bucket) ->
     ct:log("Read si ~p", [Key]),
     rpc:call(Node, antidote, read_objects, [CommitTime, [], [{Key, ?TYPE, Bucket}]]).
@@ -102,3 +115,4 @@ check_read(Node, Key, Expected, CommitTime, Bucket) ->
 
 check_read(Node, Key, Expected, Bucket) ->
   check_read(Node, Key, Expected, ignore, Bucket).
+
