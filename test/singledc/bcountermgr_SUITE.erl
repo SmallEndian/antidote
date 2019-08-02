@@ -36,7 +36,9 @@
          all/0]).
 
 %% tests
--export([new_bcounter_test/1]).
+-export([new_bcounter_test/1,
+	check_read/4, %% avoids unused error
+	check_read/5]).
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -89,7 +91,7 @@ new_bcounter_test(Config) ->
     % FIXME why is this not working?
     {Value, _}  = antidote_utils:read_b_counter(Node, Key, Bucket),
     ?assertEqual(0, Value).
-    check_read(Node, Key, 0, Bucket).
+check_read(Node, Key, 0, Bucket).
 
 read_si(Node, Key, CommitTime, Bucket) ->
     ct:log("Read si ~p", [Key]),
