@@ -86,6 +86,8 @@ new_bcounter_test(Config) ->
     Node = proplists:get_value(node, Config),
     Key = bcounter1_mgr,
 
+    ct:print("Bucket: ~p~nNode ~p~nKey ~p~n", [Bucket, Node, Key]),
+    ct:print("Read:~n==================~n"),
     % FIXME why is this not working?
     {Value, _}  = antidote_utils:read_b_counter(Node, Key, Bucket),
 	ct:print("Value is ~p~n", [Value]),
